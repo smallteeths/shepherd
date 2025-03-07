@@ -197,7 +197,7 @@ func CreateK3SRKE2Cluster(client *rancher.Client, rke2Cluster *apisV1.Cluster) (
 		return nil, err
 	}
 
-	err = kwait.Poll(500*time.Millisecond, 2*time.Minute, func() (done bool, err error) {
+	err = kwait.Poll(500*time.Millisecond, 20*time.Minute, func() (done bool, err error) {
 		client, err = client.ReLogin()
 		if err != nil {
 			return false, err
