@@ -18,6 +18,7 @@ type ClusterConfig struct {
 	ClusterType              string         `json:"clusterType,omitempty" yaml:"clusterType,omitempty"`
 	ClusterSpec              string         `json:"clusterSpec,omitempty" yaml:"clusterSpec,omitempty"`
 	ContainerCidr            string         `json:"containerCidr,omitempty" yaml:"containerCidr,omitempty"`
+	DeletionProtection       bool           `json:"deletionProtection,omitempty" yaml:"deletionProtection,omitempty"`
 	DisableRollback          bool           `json:"disableRollback,omitempty" yaml:"disableRollback,omitempty"`
 	EndpointPublicAccess     bool           `json:"endpointPublicAccess,omitempty" yaml:"endpointPublicAccess,omitempty"`
 	Imported                 bool           `json:"imported,omitempty" yaml:"imported,omitempty"`
@@ -50,6 +51,7 @@ type ClusterConfig struct {
 	TimeoutMins              int64          `json:"timeoutMins,omitempty" yaml:"timeoutMins,omitempty"`
 	VpcID                    string         `json:"vpcId,omitempty" yaml:"vpcId,omitempty"`
 	VswitchIds               []string       `json:"vswitchIds,omitempty" yaml:"vswitchIds,omitempty"`
+	ZoneIDs                  []string       `json:"zoneIds,omitempty" yaml:"zoneIds,omitempty"`
 	Addons                   []Addon        `json:"addons,omitempty" yaml:"addons,omitempty"`
 	PodVswitchIds            []string       `json:"podVswitchIds,omitempty" yaml:"podVswitchIds,omitempty"`
 }
@@ -63,6 +65,7 @@ type Addon struct {
 type NodePoolInfo struct {
 	AutoRenew             bool       `json:"auto_renew,omitempty" yaml:"auto_renew,omitempty"`
 	AutoRenewPeriod       int64      `json:"auto_renew_period,omitempty" yaml:"auto_renew_period,omitempty"`
+	AutoScalingEnabled    *bool      `json:"auto_scaling_enabled,omitempty" yaml:"auto_scaling_enabled,omitempty"`
 	DataDisk              []DiskInfo `json:"data_disk,omitempty" yaml:"data_disk,omitempty"`
 	EipBandwidth          int64      `json:"eip_bandwidth,omitempty" yaml:"eip_bandwidth,omitempty"`
 	EipInternetChargeType string     `json:"eip_internet_charge_type,omitempty" yaml:"eip_internet_charge_type,omitempty"`
@@ -72,6 +75,8 @@ type NodePoolInfo struct {
 	IsBondEip             bool       `json:"is_bond_eip,omitempty" yaml:"is_bond_eip,omitempty"`
 	KeyPair               string     `json:"key_pair,omitempty" yaml:"key_pair,omitempty"`
 	LoginPassword         string     `json:"login_password,omitempty" yaml:"login_password,omitempty"`
+	MaxInstances          *int64     `json:"max_instances,omitempty" yaml:"max_instances,omitempty"`
+	MinInstances          *int64     `json:"min_instances,omitempty" yaml:"min_instances,omitempty"`
 	Name                  string     `json:"name,omitempty" yaml:"name,omitempty"`
 	NodepoolID            string     `json:"nodepool_id,omitempty" yaml:"nodepool_id,omitempty"`
 	Period                int64      `json:"period,omitempty" yaml:"period,omitempty"`
@@ -112,14 +117,23 @@ func ackNodePoolConstructor(ackNodePoolConfigs *[]NodePoolInfo) []management.Nod
 	var ackNodePools []management.NodePoolInfo
 	for _, ackNodePoolConfig := range *ackNodePoolConfigs {
 		ackNodePool := management.NodePoolInfo{
-			Name:               ackNodePoolConfig.Name,
+			AutoRenew:          ackNodePoolConfig.AutoRenew,
+			AutoRenewPeriod:    ackNodePoolConfig.AutoRenewPeriod,
+			AutoScalingEnabled: ackNodePoolConfig.AutoScalingEnabled,
+			DataDisk:           ackDiskInfoConstructor(&ackNodePoolConfig.DataDisk),
+			InstanceChargeType: ackNodePoolConfig.InstanceChargeType,
 			InstanceTypes:      ackNodePoolConfig.InstanceTypes,
 			InstancesNum:       ackNodePoolConfig.InstancesNum,
 			KeyPair:            ackNodePoolConfig.KeyPair,
+			MaxInstances:       ackNodePoolConfig.MaxInstances,
+			MinInstances:       ackNodePoolConfig.MinInstances,
+			Name:               ackNodePoolConfig.Name,
+			Period:             ackNodePoolConfig.Period,
+			PeriodUnit:         ackNodePoolConfig.PeriodUnit,
 			Platform:           ackNodePoolConfig.Platform,
+			ScalingType:        ackNodePoolConfig.ScalingType,
 			SystemDiskCategory: ackNodePoolConfig.SystemDiskCategory,
 			SystemDiskSize:     ackNodePoolConfig.SystemDiskSize,
-			DataDisk:           ackDiskInfoConstructor(&ackNodePoolConfig.DataDisk),
 			VSwitchIds:         ackNodePoolConfig.VSwitchIds,
 			Runtime:            ackNodePoolConfig.Runtime,
 			RuntimeVersion:     ackNodePoolConfig.RuntimeVersion,
@@ -130,7 +144,7 @@ func ackNodePoolConstructor(ackNodePoolConfigs *[]NodePoolInfo) []management.Nod
 }
 
 func addonConstructor(ackClusterConfig *ClusterConfig) []management.Addon {
-	if ackClusterConfig.Addons == nil || len(ackClusterConfig.Addons) == 0 {
+	if len(ackClusterConfig.Addons) == 0 {
 		return []management.Addon{}
 	}
 	return []management.Addon{
@@ -150,6 +164,7 @@ func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig C
 		ClusterSpec:              ackClusterConfig.ClusterSpec,
 		RegionID:                 ackClusterConfig.RegionID,
 		ContainerCidr:            ackClusterConfig.ContainerCidr,
+		DeletionProtection:       ackClusterConfig.DeletionProtection,
 		ServiceCidr:              ackClusterConfig.ServiceCidr,
 		KubernetesVersion:        ackClusterConfig.KubernetesVersion,
 		ProxyMode:                ackClusterConfig.ProxyMode,
@@ -165,7 +180,11 @@ func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig C
 		MasterCount:              ackClusterConfig.MasterCount,
 		OsType:                   ackClusterConfig.OsType,
 		ResourceGroupID:          ackClusterConfig.ResourceGroupID,
+		SSHFlags:                 ackClusterConfig.SSHFlags,
+		SecurityGroupID:          ackClusterConfig.SecurityGroupID,
 		VpcID:                    ackClusterConfig.VpcID,
+		VswitchIds:               ackClusterConfig.VswitchIds,
+		ZoneIDs:                  ackClusterConfig.ZoneIDs,
 		MasterVswitchIds:         ackClusterConfig.MasterVswitchIds,
 		KeyPair:                  ackClusterConfig.KeyPair,
 		PodVswitchIds:            ackClusterConfig.PodVswitchIds,
