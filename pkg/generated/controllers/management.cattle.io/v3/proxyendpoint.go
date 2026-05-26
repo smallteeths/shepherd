@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Rancher Labs, Inc.
+Copyright 2026 Rancher Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,31 +34,31 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// OperatorSettingController interface for managing OperatorSetting resources.
-type OperatorSettingController interface {
-	generic.NonNamespacedControllerInterface[*v3.OperatorSetting, *v3.OperatorSettingList]
+// ProxyEndpointController interface for managing ProxyEndpoint resources.
+type ProxyEndpointController interface {
+	generic.NonNamespacedControllerInterface[*v3.ProxyEndpoint, *v3.ProxyEndpointList]
 }
 
-// OperatorSettingClient interface for managing OperatorSetting resources in Kubernetes.
-type OperatorSettingClient interface {
-	generic.NonNamespacedClientInterface[*v3.OperatorSetting, *v3.OperatorSettingList]
+// ProxyEndpointClient interface for managing ProxyEndpoint resources in Kubernetes.
+type ProxyEndpointClient interface {
+	generic.NonNamespacedClientInterface[*v3.ProxyEndpoint, *v3.ProxyEndpointList]
 }
 
-// OperatorSettingCache interface for retrieving OperatorSetting resources in memory.
-type OperatorSettingCache interface {
-	generic.NonNamespacedCacheInterface[*v3.OperatorSetting]
+// ProxyEndpointCache interface for retrieving ProxyEndpoint resources in memory.
+type ProxyEndpointCache interface {
+	generic.NonNamespacedCacheInterface[*v3.ProxyEndpoint]
 }
 
-// OperatorSettingStatusHandler is executed for every added or modified OperatorSetting. Should return the new status to be updated
-type OperatorSettingStatusHandler func(obj *v3.OperatorSetting, status v3.OperatorSettingStatus) (v3.OperatorSettingStatus, error)
+// ProxyEndpointStatusHandler is executed for every added or modified ProxyEndpoint. Should return the new status to be updated
+type ProxyEndpointStatusHandler func(obj *v3.ProxyEndpoint, status v3.ProxyEndpointStatus) (v3.ProxyEndpointStatus, error)
 
-// OperatorSettingGeneratingHandler is the top-level handler that is executed for every OperatorSetting event. It extends OperatorSettingStatusHandler by a returning a slice of child objects to be passed to apply.Apply
-type OperatorSettingGeneratingHandler func(obj *v3.OperatorSetting, status v3.OperatorSettingStatus) ([]runtime.Object, v3.OperatorSettingStatus, error)
+// ProxyEndpointGeneratingHandler is the top-level handler that is executed for every ProxyEndpoint event. It extends ProxyEndpointStatusHandler by a returning a slice of child objects to be passed to apply.Apply
+type ProxyEndpointGeneratingHandler func(obj *v3.ProxyEndpoint, status v3.ProxyEndpointStatus) ([]runtime.Object, v3.ProxyEndpointStatus, error)
 
-// RegisterOperatorSettingStatusHandler configures a OperatorSettingController to execute a OperatorSettingStatusHandler for every events observed.
+// RegisterProxyEndpointStatusHandler configures a ProxyEndpointController to execute a ProxyEndpointStatusHandler for every events observed.
 // If a non-empty condition is provided, it will be updated in the status conditions for every handler execution
-func RegisterOperatorSettingStatusHandler(ctx context.Context, controller OperatorSettingController, condition condition.Cond, name string, handler OperatorSettingStatusHandler) {
-	statusHandler := &operatorSettingStatusHandler{
+func RegisterProxyEndpointStatusHandler(ctx context.Context, controller ProxyEndpointController, condition condition.Cond, name string, handler ProxyEndpointStatusHandler) {
+	statusHandler := &proxyEndpointStatusHandler{
 		client:    controller,
 		condition: condition,
 		handler:   handler,
@@ -66,31 +66,31 @@ func RegisterOperatorSettingStatusHandler(ctx context.Context, controller Operat
 	controller.AddGenericHandler(ctx, name, generic.FromObjectHandlerToHandler(statusHandler.sync))
 }
 
-// RegisterOperatorSettingGeneratingHandler configures a OperatorSettingController to execute a OperatorSettingGeneratingHandler for every events observed, passing the returned objects to the provided apply.Apply.
+// RegisterProxyEndpointGeneratingHandler configures a ProxyEndpointController to execute a ProxyEndpointGeneratingHandler for every events observed, passing the returned objects to the provided apply.Apply.
 // If a non-empty condition is provided, it will be updated in the status conditions for every handler execution
-func RegisterOperatorSettingGeneratingHandler(ctx context.Context, controller OperatorSettingController, apply apply.Apply,
-	condition condition.Cond, name string, handler OperatorSettingGeneratingHandler, opts *generic.GeneratingHandlerOptions) {
-	statusHandler := &operatorSettingGeneratingHandler{
-		OperatorSettingGeneratingHandler: handler,
-		apply:                            apply,
-		name:                             name,
-		gvk:                              controller.GroupVersionKind(),
+func RegisterProxyEndpointGeneratingHandler(ctx context.Context, controller ProxyEndpointController, apply apply.Apply,
+	condition condition.Cond, name string, handler ProxyEndpointGeneratingHandler, opts *generic.GeneratingHandlerOptions) {
+	statusHandler := &proxyEndpointGeneratingHandler{
+		ProxyEndpointGeneratingHandler: handler,
+		apply:                          apply,
+		name:                           name,
+		gvk:                            controller.GroupVersionKind(),
 	}
 	if opts != nil {
 		statusHandler.opts = *opts
 	}
 	controller.OnChange(ctx, name, statusHandler.Remove)
-	RegisterOperatorSettingStatusHandler(ctx, controller, condition, name, statusHandler.Handle)
+	RegisterProxyEndpointStatusHandler(ctx, controller, condition, name, statusHandler.Handle)
 }
 
-type operatorSettingStatusHandler struct {
-	client    OperatorSettingClient
+type proxyEndpointStatusHandler struct {
+	client    ProxyEndpointClient
 	condition condition.Cond
-	handler   OperatorSettingStatusHandler
+	handler   ProxyEndpointStatusHandler
 }
 
 // sync is executed on every resource addition or modification. Executes the configured handlers and sends the updated status to the Kubernetes API
-func (a *operatorSettingStatusHandler) sync(key string, obj *v3.OperatorSetting) (*v3.OperatorSetting, error) {
+func (a *proxyEndpointStatusHandler) sync(key string, obj *v3.ProxyEndpoint) (*v3.ProxyEndpoint, error) {
 	if obj == nil {
 		return obj, nil
 	}
@@ -129,8 +129,8 @@ func (a *operatorSettingStatusHandler) sync(key string, obj *v3.OperatorSetting)
 	return obj, err
 }
 
-type operatorSettingGeneratingHandler struct {
-	OperatorSettingGeneratingHandler
+type proxyEndpointGeneratingHandler struct {
+	ProxyEndpointGeneratingHandler
 	apply apply.Apply
 	opts  generic.GeneratingHandlerOptions
 	gvk   schema.GroupVersionKind
@@ -139,12 +139,12 @@ type operatorSettingGeneratingHandler struct {
 }
 
 // Remove handles the observed deletion of a resource, cascade deleting every associated resource previously applied
-func (a *operatorSettingGeneratingHandler) Remove(key string, obj *v3.OperatorSetting) (*v3.OperatorSetting, error) {
+func (a *proxyEndpointGeneratingHandler) Remove(key string, obj *v3.ProxyEndpoint) (*v3.ProxyEndpoint, error) {
 	if obj != nil {
 		return obj, nil
 	}
 
-	obj = &v3.OperatorSetting{}
+	obj = &v3.ProxyEndpoint{}
 	obj.Namespace, obj.Name = kv.RSplit(key, "/")
 	obj.SetGroupVersionKind(a.gvk)
 
@@ -158,13 +158,13 @@ func (a *operatorSettingGeneratingHandler) Remove(key string, obj *v3.OperatorSe
 		ApplyObjects()
 }
 
-// Handle executes the configured OperatorSettingGeneratingHandler and pass the resulting objects to apply.Apply, finally returning the new status of the resource
-func (a *operatorSettingGeneratingHandler) Handle(obj *v3.OperatorSetting, status v3.OperatorSettingStatus) (v3.OperatorSettingStatus, error) {
+// Handle executes the configured ProxyEndpointGeneratingHandler and pass the resulting objects to apply.Apply, finally returning the new status of the resource
+func (a *proxyEndpointGeneratingHandler) Handle(obj *v3.ProxyEndpoint, status v3.ProxyEndpointStatus) (v3.ProxyEndpointStatus, error) {
 	if !obj.DeletionTimestamp.IsZero() {
 		return status, nil
 	}
 
-	objs, newStatus, err := a.OperatorSettingGeneratingHandler(obj, status)
+	objs, newStatus, err := a.ProxyEndpointGeneratingHandler(obj, status)
 	if err != nil {
 		return newStatus, err
 	}
@@ -185,7 +185,7 @@ func (a *operatorSettingGeneratingHandler) Handle(obj *v3.OperatorSetting, statu
 
 // isNewResourceVersion detects if a specific resource version was already successfully processed.
 // Only used if UniqueApplyForResourceVersion is set in generic.GeneratingHandlerOptions
-func (a *operatorSettingGeneratingHandler) isNewResourceVersion(obj *v3.OperatorSetting) bool {
+func (a *proxyEndpointGeneratingHandler) isNewResourceVersion(obj *v3.ProxyEndpoint) bool {
 	if !a.opts.UniqueApplyForResourceVersion {
 		return true
 	}
@@ -198,7 +198,7 @@ func (a *operatorSettingGeneratingHandler) isNewResourceVersion(obj *v3.Operator
 
 // storeResourceVersion keeps track of the latest resource version of an object for which Apply was executed
 // Only used if UniqueApplyForResourceVersion is set in generic.GeneratingHandlerOptions
-func (a *operatorSettingGeneratingHandler) storeResourceVersion(obj *v3.OperatorSetting) {
+func (a *proxyEndpointGeneratingHandler) storeResourceVersion(obj *v3.ProxyEndpoint) {
 	if !a.opts.UniqueApplyForResourceVersion {
 		return
 	}

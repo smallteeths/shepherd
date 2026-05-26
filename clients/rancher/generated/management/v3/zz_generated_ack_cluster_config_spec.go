@@ -10,6 +10,7 @@ const (
 	ACKClusterConfigSpecFieldClusterSpec              = "clusterSpec"
 	ACKClusterConfigSpecFieldClusterType              = "clusterType"
 	ACKClusterConfigSpecFieldContainerCidr            = "containerCidr"
+	ACKClusterConfigSpecFieldDeletionProtection       = "deletionProtection"
 	ACKClusterConfigSpecFieldDisableRollback          = "disableRollback"
 	ACKClusterConfigSpecFieldEndpointPublicAccess     = "endpointPublicAccess"
 	ACKClusterConfigSpecFieldImported                 = "imported"
@@ -44,6 +45,7 @@ const (
 	ACKClusterConfigSpecFieldTimeoutMins              = "timeoutMins"
 	ACKClusterConfigSpecFieldVpcID                    = "vpcId"
 	ACKClusterConfigSpecFieldVswitchIds               = "vswitchIds"
+	ACKClusterConfigSpecFieldZoneIDs                  = "zoneIds"
 )
 
 type ACKClusterConfigSpec struct {
@@ -55,6 +57,7 @@ type ACKClusterConfigSpec struct {
 	ClusterSpec              string         `json:"clusterSpec,omitempty" yaml:"clusterSpec,omitempty"`
 	ClusterType              string         `json:"clusterType,omitempty" yaml:"clusterType,omitempty"`
 	ContainerCidr            string         `json:"containerCidr,omitempty" yaml:"containerCidr,omitempty"`
+	DeletionProtection       bool           `json:"deletionProtection,omitempty" yaml:"deletionProtection,omitempty"`
 	DisableRollback          bool           `json:"disableRollback,omitempty" yaml:"disableRollback,omitempty"`
 	EndpointPublicAccess     bool           `json:"endpointPublicAccess,omitempty" yaml:"endpointPublicAccess,omitempty"`
 	Imported                 bool           `json:"imported,omitempty" yaml:"imported,omitempty"`
@@ -89,4 +92,5 @@ type ACKClusterConfigSpec struct {
 	TimeoutMins              int64          `json:"timeoutMins,omitempty" yaml:"timeoutMins,omitempty"`
 	VpcID                    string         `json:"vpcId,omitempty" yaml:"vpcId,omitempty"`
 	VswitchIds               []string       `json:"vswitchIds,omitempty" yaml:"vswitchIds,omitempty"`
+	ZoneIDs                  []string       `json:"zoneIds,omitempty" yaml:"zoneIds,omitempty"`
 }

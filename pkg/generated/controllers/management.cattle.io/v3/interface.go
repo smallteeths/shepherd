@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Rancher Labs, Inc.
+Copyright 2026 Rancher Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,7 +71,6 @@ type Interface interface {
 	OIDCClient() OIDCClientController
 	OIDCProvider() OIDCProviderController
 	OpenLdapProvider() OpenLdapProviderController
-	OperatorSetting() OperatorSettingController
 	PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController
 	Preference() PreferenceController
 	Principal() PrincipalController
@@ -79,6 +78,7 @@ type Interface interface {
 	ProjectNetworkPolicy() ProjectNetworkPolicyController
 	ProjectResourceQuotaUsage() ProjectResourceQuotaUsageController
 	ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController
+	ProxyEndpoint() ProxyEndpointController
 	RancherUserNotification() RancherUserNotificationController
 	RkeAddon() RkeAddonController
 	RkeK8sServiceOption() RkeK8sServiceOptionController
@@ -260,10 +260,6 @@ func (v *version) OpenLdapProvider() OpenLdapProviderController {
 	return generic.NewNonNamespacedController[*v3.OpenLdapProvider, *v3.OpenLdapProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OpenLdapProvider"}, "openldapproviders", v.controllerFactory, v.ts)
 }
 
-func (v *version) OperatorSetting() OperatorSettingController {
-	return generic.NewNonNamespacedController[*v3.OperatorSetting, *v3.OperatorSettingList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OperatorSetting"}, "operatorsettings", v.controllerFactory, v.ts)
-}
-
 func (v *version) PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController {
 	return generic.NewNonNamespacedController[*v3.PodSecurityAdmissionConfigurationTemplate, *v3.PodSecurityAdmissionConfigurationTemplateList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "PodSecurityAdmissionConfigurationTemplate"}, "podsecurityadmissionconfigurationtemplates", v.controllerFactory, v.ts)
 }
@@ -290,6 +286,10 @@ func (v *version) ProjectResourceQuotaUsage() ProjectResourceQuotaUsageControlle
 
 func (v *version) ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController {
 	return generic.NewController[*v3.ProjectRoleTemplateBinding, *v3.ProjectRoleTemplateBindingList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ProjectRoleTemplateBinding"}, "projectroletemplatebindings", true, v.controllerFactory, v.ts)
+}
+
+func (v *version) ProxyEndpoint() ProxyEndpointController {
+	return generic.NewNonNamespacedController[*v3.ProxyEndpoint, *v3.ProxyEndpointList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ProxyEndpoint"}, "proxyendpoints", v.controllerFactory, v.ts)
 }
 
 func (v *version) RancherUserNotification() RancherUserNotificationController {

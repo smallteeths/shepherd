@@ -4,6 +4,7 @@ const (
 	NodePoolInfoType                       = "nodePoolInfo"
 	NodePoolInfoFieldAutoRenew             = "auto_renew"
 	NodePoolInfoFieldAutoRenewPeriod       = "auto_renew_period"
+	NodePoolInfoFieldAutoScalingEnabled    = "auto_scaling_enabled"
 	NodePoolInfoFieldDataDisk              = "data_disk"
 	NodePoolInfoFieldEipBandwidth          = "eip_bandwidth"
 	NodePoolInfoFieldEipInternetChargeType = "eip_internet_charge_type"
@@ -13,6 +14,8 @@ const (
 	NodePoolInfoFieldIsBondEip             = "is_bond_eip"
 	NodePoolInfoFieldKeyPair               = "key_pair"
 	NodePoolInfoFieldLoginPassword         = "login_password"
+	NodePoolInfoFieldMaxInstances          = "max_instances"
+	NodePoolInfoFieldMinInstances          = "min_instances"
 	NodePoolInfoFieldName                  = "name"
 	NodePoolInfoFieldNodepoolId            = "nodepool_id"
 	NodePoolInfoFieldPeriod                = "period"
@@ -29,6 +32,7 @@ const (
 type NodePoolInfo struct {
 	AutoRenew             bool       `json:"auto_renew,omitempty" yaml:"auto_renew,omitempty"`
 	AutoRenewPeriod       int64      `json:"auto_renew_period,omitempty" yaml:"auto_renew_period,omitempty"`
+	AutoScalingEnabled    *bool      `json:"auto_scaling_enabled,omitempty" yaml:"auto_scaling_enabled,omitempty"`
 	DataDisk              []DiskInfo `json:"data_disk,omitempty" yaml:"data_disk,omitempty"`
 	EipBandwidth          int64      `json:"eip_bandwidth,omitempty" yaml:"eip_bandwidth,omitempty"`
 	EipInternetChargeType string     `json:"eip_internet_charge_type,omitempty" yaml:"eip_internet_charge_type,omitempty"`
@@ -38,6 +42,8 @@ type NodePoolInfo struct {
 	IsBondEip             bool       `json:"is_bond_eip,omitempty" yaml:"is_bond_eip,omitempty"`
 	KeyPair               string     `json:"key_pair,omitempty" yaml:"key_pair,omitempty"`
 	LoginPassword         string     `json:"login_password,omitempty" yaml:"login_password,omitempty"`
+	MaxInstances          *int64     `json:"max_instances,omitempty" yaml:"max_instances,omitempty"`
+	MinInstances          *int64     `json:"min_instances,omitempty" yaml:"min_instances,omitempty"`
 	Name                  string     `json:"name,omitempty" yaml:"name,omitempty"`
 	NodepoolId            string     `json:"nodepool_id,omitempty" yaml:"nodepool_id,omitempty"`
 	Period                int64      `json:"period,omitempty" yaml:"period,omitempty"`
